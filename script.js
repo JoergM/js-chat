@@ -48,3 +48,20 @@ messages.forEach((m) => sendMessage(m));
 
 //forEach Shorthand
 messages.forEach(sendMessage);
+
+//get Chat Members
+let chatMembers = new Set(
+  messages.filter((m) => m.type !== TYPE_SYSTEM).map((m) => m.sender)
+);
+
+console.log(chatMembers);
+
+//count Words
+let words = {};
+messages.forEach((m) => {
+  if (m.sender) {
+    words[m.sender] = (words[m.sender] ?? 0) + m.textBody.split(' ').length;
+  }
+});
+
+console.log(words);
