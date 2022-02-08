@@ -1,61 +1,91 @@
-const TYPE_SYSTEM = "system";
-const TYPE_USER = "user";
+const TYPE_SYSTEM = 'system';
+const TYPE_USER = 'user';
 
-const createMessage = (textBody, type, sender) => ({textBody, type, sender, render: renderMessage});
+function Message(textBody, type, sender) {
+  this.textBody = textBody;
+  this.type = type;
+  this.sender = sender;
+}
+
+Message.prototype.render = function () {
+  console.log(this.textBody);
+};
+
+function SystemMessage(textBody) {
+  Message.call(this, textBody, TYPE_SYSTEM, undefined);
+}
+
+SystemMessage.prototype.render = function () {
+  console.log('...' + this.textBody + '...');
+};
+
+SystemMessage.prototype = Object.create(Message.prototype);
+SystemMessage.prototype.constructor = SystemMessage;
+
+function UserMessage(textBody, sender) {
+  Message.call(this, textBody, TYPE_USER, sender);
+}
+
+UserMessage.prototype.render = function () {
+  console.log(`${this.sender}: ${this.textBody}`);
+};
+
+UserMessage.prototype = Object.create(Message.prototype);
+UserMessage.prototype.constructor = UserMessage;
 
 const messages = [
-    createMessage("Lisa enters the chat", TYPE_SYSTEM),
-    createMessage("Paul enters the chat", TYPE_SYSTEM),
-    createMessage("Hello!", TYPE_USER, "Paul"),
-    createMessage("Hello Paul! How are you?", TYPE_USER, "Lisa"),
-    createMessage("Hi Lisa, i'm fine, thanks. How are you?", TYPE_USER, "Paul")
+  new SystemMessage('Lisa enters the chat'),
+  new SystemMessage('Paul enters the chat'),
+  new UserMessage('Hello', 'Paul'),
+  new UserMessage('Hello Paul! How are you?', 'Lisa'),
+  new UserMessage("Hi Lisa, i'm fine, thanks. How are you?", 'Paul'),
 ];
 
 function renderMessage() {
-    let formattedMessage = "";
+  let formattedMessage = '';
 
-    if (this.type === TYPE_SYSTEM) {
-        formattedMessage = "..." + this.textBody + "...";
-    } else {
-        formattedMessage = `${this.sender}: ${this.textBody}`;
-    }
+  if (this.type === TYPE_SYSTEM) {
+    formattedMessage = '...' + this.textBody + '...';
+  } else {
+    formattedMessage = `${this.sender}: ${this.textBody}`;
+  }
 
-    return formattedMessage;
+  return formattedMessage;
 }
 
 function sendMessage(message) {
-    console.log(message);
-    message.render && console.log(message.render());
+  console.log(message);
+  message.render;
 }
 
-messages.forEach(message => sendMessage(message));
+messages.forEach((message) => sendMessage(message));
 
 const membersOfUserMsgs = messages
-    .map(message => message.sender)
-    .filter(member => member !== undefined);
+  .map((message) => message.sender)
+  .filter((member) => member !== undefined);
 
 const memberNames = Array.from(new Set(membersOfUserMsgs));
-console.log("Member names: ", memberNames);
+console.log('Member names: ', memberNames);
 
 const wordsPerMember = messages.reduce((wordsPerMember, message) => {
-    const {sender, textBody} = message;
-    const wordCount = textBody.split(" ").length;
-    sender && (wordsPerMember[sender] ?
-        wordsPerMember[sender] += wordCount :
-        wordsPerMember[sender] = wordCount);
+  const { sender, textBody } = message;
+  const wordCount = textBody.split(' ').length;
+  sender &&
+    (wordsPerMember[sender]
+      ? (wordsPerMember[sender] += wordCount)
+      : (wordsPerMember[sender] = wordCount));
 
-    return wordsPerMember;
+  return wordsPerMember;
 }, {});
 
-console.log("Words per Member: ", wordsPerMember);
-
+console.log('Words per Member: ', wordsPerMember);
 
 const memberNames2 = messages.reduce((memberNames, message) => {
-    const {sender} = message;
-    if (sender !== undefined && memberNames.indexOf(sender) === -1) {
-        memberNames.push(sender)
-    }
-    return memberNames;
+  const { sender } = message;
+  if (sender !== undefined && memberNames.indexOf(sender) === -1) {
+    memberNames.push(sender);
+  }
+  return memberNames;
 }, []);
 
-console.log("Members names: ", memberNames2);
+console.log('Members names: ', memberNames2);
